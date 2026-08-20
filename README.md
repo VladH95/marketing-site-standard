@@ -85,6 +85,13 @@ Stated out loud, because each is a real limit:
 - **Editorial approval workflows.** The optional editor is git-backed, so
   access is repository write access and "draft, then someone approves" is not
   expressible.
+- **Error monitoring.** Almost nothing runs client-side on a prerendered
+  marketing site, and the failures that do happen — dead links, 404s — are
+  caught before deploy rather than reported after. Add it when the site grows
+  real client-side logic: a calculator, a configurator, a gated flow.
+- **Internationalisation.** No routing or message catalogue. Worth deciding at
+  scoping rather than later — the URL shape for a second language touches every
+  canonical, the sitemap and the redirect registry.
 - **A form backend.** Where submissions go and what to test is specified;
   the provider is a per-project choice, and hard-wiring one vendor into a
   framework is the opposite of portable.
