@@ -1,0 +1,55 @@
+name: CI
+
+# Runs the standard's own gates against the worked example in example/.
+#
+# This is the demonstration as much as the check: the same four gates a client
+# project gets, running for real on every pull request. A red check here means
+# the standard caught something, which is the point.
+#
+# It only blocks a merge because `main` is protected and `verify` is marked a
+# required status check — the workflow alone would just report.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: example
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: example/package-lock.json
+
+      # `npm ci` installs exactly what the lockfile says, so CI tests the same
+      # tree production builds.
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # config → images → content → links → next build. Any non-zero exit stops
+      # the chain.
+      - name: Build
+        run: npm run build
+
+      - name: Dependency audit (advisory)
+        run: npm audit --omit=dev || true

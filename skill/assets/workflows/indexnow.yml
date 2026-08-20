@@ -1,0 +1,35 @@
+name: IndexNow
+
+# Ping Bing and Yandex whenever published content changes on main, so a new or
+# edited page gets crawled in minutes instead of waiting for the bot to come
+# round. The IndexNow key is public by design (served at /<key>.txt), so this
+# workflow needs no secrets — which also means it survives a repo transfer
+# without anything to re-provision.
+#
+# Triggers on any content change rather than a hand-listed set of directories:
+# the script already decides which files map to a URL, using the collections in
+# site.config.mjs, so listing them here too would be a second copy to keep in
+# step — and the failure mode of forgetting is a page that never gets crawled.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/content/**"
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history. `fetch-depth: 2` only guarantees the immediately
+          # previous commit, so a push containing several commits — a merge, a
+          # batch of edits — leaves `github.event.before` outside the shallow
+          # clone and the diff fails.
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Submit changed URLs to IndexNow
+        run: node scripts/indexnow.mjs --changed "${{ github.event.before }}"

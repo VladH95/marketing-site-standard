@@ -1,0 +1,39 @@
+{
+  "_comment": [
+    "Merge the `scripts` block into the project's package.json.",
+    "",
+    "The order inside `build` is load-bearing:",
+    "1. check-config  — everything downstream trusts site.config.mjs, so a placeholder",
+    "                   domain there makes every canonical, the sitemap and the CSP",
+    "                   confidently wrong while every other check still passes.",
+    "2. gen-image-dimensions — the app imports the map it writes.",
+    "3. check-content — cheap, and catches the most common authoring mistakes.",
+    "4. check-links   — only meaningful once the content is valid.",
+    "5. next build    — last, and only if everything above passed.",
+    "",
+    "`&&` is what makes this a chain: any non-zero exit stops it, and Vercel marks",
+    "the deployment failed while the previous version stays live. That property is",
+    "the whole design — it is why a bad article fails the DEPLOY rather than",
+    "shipping quietly.",
+    "",
+    "`prepare` is run automatically by npm after install, which is how a fresh",
+    "clone ends up with the pre-commit hook without anyone remembering to do it.",
+    "",
+    "`typecheck` exists as its own script because `next build` type-errors are",
+    "slower and noisier to read, and CI should be able to fail on types alone."
+  ],
+  "scripts": {
+    "dev": "next dev",
+    "build": "node scripts/check-config.mjs && node scripts/gen-image-dimensions.mjs && node scripts/check-content.mjs && node scripts/check-links.mjs && next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "check:config": "node scripts/check-config.mjs",
+    "check:content": "node scripts/check-content.mjs",
+    "check:links": "node scripts/check-links.mjs",
+    "gen:images": "node scripts/gen-image-dimensions.mjs",
+    "indexnow": "node scripts/indexnow.mjs",
+    "prepare": "node scripts/install-hooks.mjs"
+  },
+  "_dependencies_note": "The gate scripts need gray-matter. The scaffold installer checks for it and prints the install command if it is missing."
+}

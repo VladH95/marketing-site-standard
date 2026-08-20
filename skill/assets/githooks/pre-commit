@@ -1,0 +1,36 @@
+#!/bin/sh
+# Local gate. Deliberately fast — the full `next build` runs in CI, because a
+# hook slow enough to be annoying is a hook people start bypassing, and a
+# bypassed gate protects nothing.
+#
+# What this catches before a commit exists at all:
+#   - a config still holding template placeholders
+#   - lint errors
+#   - type errors
+#   - content that would fail the build (missing frontmatter, absent cover)
+#   - broken internal links
+#
+# Escape hatch: `git commit --no-verify`. It exists for genuine emergencies.
+# If you find yourself using it twice in a week, the gate is wrong — fix the
+# gate rather than routing around it.
+
+set -e
+
+# --silent hides npm's own wrapper output, including its explanation when a
+# script is missing entirely. The hook still fails closed in that case, but the
+# reason would be invisible — so name the step that failed before exiting.
+run() {
+  echo "→ pre-commit: $1"
+  if ! npm run "$1" --silent; then
+    echo "✖ pre-commit: \`npm run $1\` failed or is not defined in package.json" >&2
+    exit 1
+  fi
+}
+
+run check:config
+run lint
+run typecheck
+run check:content
+run check:links
+
+echo "✓ pre-commit passed"

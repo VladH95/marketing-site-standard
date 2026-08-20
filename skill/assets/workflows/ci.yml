@@ -1,0 +1,53 @@
+name: CI
+
+# The gate that actually stops a broken site from shipping.
+#
+# Important: this workflow only *reports*. GitHub does not block a merge on a
+# failing check unless the branch is protected and this job is marked required.
+# Without that setting the whole thing is decoration — see
+# references/quality-gates.md for the two settings to switch on.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  # A new push supersedes the previous run on the same branch.
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # `npm ci` installs exactly what the lockfile says. `npm install` can
+      # silently pick up newer versions, which means CI stops testing the same
+      # thing production builds.
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # Runs the content gate, the link check, and next build — the same chain
+      # as local, so "works on my machine" and "passes CI" cannot diverge.
+      - name: Build
+        run: npm run build
+
+      # Reports known vulnerabilities in dependencies without failing the run.
+      # Advisory on purpose: a transitive high in a dev tool should not block a
+      # copy fix at 6pm. Read it, act on real ones.
+      - name: Dependency audit (advisory)
+        run: npm audit --omit=dev || true
