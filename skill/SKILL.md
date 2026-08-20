@@ -217,5 +217,21 @@ owner should know about.
   git-backed, so access is GitHub write access and there is no "draft, then someone
   approves". A client who needs that needs a database-backed CMS, and it is worth
   finding out during scoping rather than after.
+- **Error monitoring.** No Sentry, no session replay. On a site that is almost
+  entirely prerendered HTML there is very little runtime left to fail, and the
+  failure that does happen — a dead link, a 404 — is caught by the link checker
+  before deploy rather than reported after it. Meanwhile the cost is real: a
+  script on every page, a CSP entry, another account at handoff, and a consent
+  question, since it collects visitor data too.
+  **Add it when the site grows real client-side logic** — a calculator, a
+  configurator, a multi-step flow, anything gated. At that point failures
+  become invisible and it pays for itself immediately.
+- **Internationalisation.** No routing, no message catalogue, no locale
+  negotiation. Retrofitting i18n is genuinely painful, so this is the one
+  exclusion worth challenging early rather than late.
+  **Decide before the content model exists, not after.** If the client will
+  ever need a second language, say so at scoping and plan the URL shape then —
+  `/de/blog/x` versus a subdomain is a decision that touches every canonical,
+  the sitemap and the redirect registry.
 - **The handoff itself.** `references/client-handoff.md` is documentation. Transfers,
   DNS changes, and key rotations are the owner's to execute; several are irreversible.
