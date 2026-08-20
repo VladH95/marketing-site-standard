@@ -1,9 +1,8 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useState } from "react";
 import siteConfig from "../../site.config.mjs";
-import { readConsent, onConsent } from "@/components/consent";
+import { useConsent } from "@/components/consent";
 
 const provider = siteConfig.analytics?.provider ?? "none";
 const id: string = siteConfig.analytics?.id ?? "";
@@ -12,28 +11,18 @@ const id: string = siteConfig.analytics?.id ?? "";
  * Analytics loader, gated on consent.
  *
  * Renders nothing — no script tag, no network request — until the visitor has
- * accepted. It checks the stored choice on mount and also listens for the
- * consent event, so accepting in the banner starts measurement immediately
- * without a reload.
+ * accepted. Consent is read through the same external store the banner writes
+ * to, so accepting starts measurement immediately without a reload and without
+ * an effect syncing one piece of state to another.
  *
  * Adding a provider means a case here plus its hosts in `security.cspAllow`.
- * If the script is blocked by the CSP the failure is silent in production,
- * so check the browser console once after wiring a new one up.
+ * The config gate refuses to build if a provider is enabled without its host
+ * allowed, because a CSP-blocked tracker fails silently in production only.
  */
 export function Analytics() {
-  const [enabled, setEnabled] = useState(false);
+  const consent = useConsent();
 
-  useEffect(() => {
-    if (readConsent() === "accepted") {
-      setEnabled(true);
-      return;
-    }
-    return onConsent((c) => {
-      if (c === "accepted") setEnabled(true);
-    });
-  }, []);
-
-  if (!enabled || provider === "none" || !id) return null;
+  if (consent !== "accepted" || provider === "none" || !id) return null;
 
   if (provider === "ga4") {
     return (
@@ -53,9 +42,7 @@ export function Analytics() {
     // Host is configurable because self-hosted and custom-domain Plausible are
     // common, and both are ways around ad blockers.
     const host = (siteConfig.analytics?.plausibleHost ?? "https://plausible.io").replace(/\/$/, "");
-    return (
-      <Script src={`${host}/js/script.js`} data-domain={id} strategy="afterInteractive" />
-    );
+    return <Script src={`${host}/js/script.js`} data-domain={id} strategy="afterInteractive" />;
   }
 
   return null;

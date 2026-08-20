@@ -69,6 +69,14 @@ export function ConsentBanner({
   const consent = useConsent();
   if (consent !== null) return null;
 
+  // Nothing configured to track means nothing to consent to. Showing the
+  // banner anyway asks permission for something that does not happen, and
+  // states it in writing — worse than not asking, because it is a claim about
+  // the site that is untrue. A project using consent for something else (an
+  // embedded map, a video) passes its own `children` and the banner shows.
+  const trackerConfigured = (siteConfig.analytics?.provider ?? "none") !== "none";
+  if (!trackerConfigured && !children) return null;
+
   return (
     <div
       role="dialog"
