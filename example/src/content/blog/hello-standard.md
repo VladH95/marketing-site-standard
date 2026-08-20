@@ -48,6 +48,9 @@ The link checker derives the real route table from the app directory and
 resolves every internal link against it, so a renamed slug fails here rather
 than in Search Console six weeks later.
 
+For the reasoning behind each threshold, see the
+[gates reference](/blog/quality-gates-explained).
+
 ## What it deliberately does not do
 
 Warnings print and pass. Title length, thin word count, an unmarked quote:
