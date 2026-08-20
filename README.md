@@ -4,10 +4,13 @@ A production standard for marketing websites — Next.js App Router, file-based
 content, Vercel — packaged as a Claude Code skill, with a worked example that
 proves it runs.
 
-The premise: **a marketing site is finished when a non-technical owner can add
-a page, push it, and be certain the site did not break and the SEO did not
-regress.** Getting there means the rules cannot live in a document. Every rule
-worth stating is a script that exits non-zero.
+The premise: **a marketing site is finished when whoever owns it can publish a
+page and be certain the site did not break and the SEO did not regress.**
+Getting there means the rules cannot live in a document. Every rule worth
+stating is a script that exits non-zero.
+
+(Who "whoever owns it" is depends on one config flag — see
+[Honest scope](#honest-scope).)
 
 ## What is here
 
@@ -49,6 +52,24 @@ Three layers enforce this, fast to thorough: a pre-commit hook (~30s, no
 husky — a committed hooks directory and one git config line), CI on every pull
 request, and the deploy itself, where a non-zero exit means Vercel keeps the
 previous version live.
+
+**The gates are tested for rejection, not just acceptance.** A green build only
+proves good input passes; it says nothing about whether a check quietly stopped
+catching things. `npm run test:gates` breaks eleven things on purpose in a
+scratch copy — a placeholder domain, a corrupt image, a missing cover, a link
+to a drafted post — and asserts each one exits non-zero with the right message.
+It runs in CI alongside the build. Two independent reviews of this project
+found gates that passed input they should have rejected, which is why this
+exists.
+
+The dependency audit is a gate too, not a notice: `npm audit --omit=dev
+--audit-level=high` fails the run. A repository with "standard" in its name
+shipping known high-severity advisories while its own CI stays green is the
+exact contradiction this is here to avoid.
+
+Copied files drift. `npm run doctor` compares a project's framework files
+against the skill they came from and names what differs, so falling behind is
+visible rather than silent. It never writes.
 
 ## What is deliberately not in it
 
@@ -114,6 +135,21 @@ Loaded on demand rather than all at once.
 | [`client-editing.md`](skill/references/client-editing.md) | Git-backed editor: why a client's publish runs the same gates |
 | [`forms-and-leads.md`](skill/references/forms-and-leads.md) | Why submissions never enter git, and where they go instead |
 | [`client-handoff.md`](skill/references/client-handoff.md) | Transfer checklist with every irreversible step flagged |
+
+## Honest scope
+
+Two things worth setting expectations on, because the word "standard" invites
+the wrong ones.
+
+**Who can publish.** Out of the box this produces a site an *editor comfortable
+with git* can run — YAML frontmatter, commit, push, with guardrails. A
+genuinely non-technical owner needs the git-backed editor switched on as well,
+and then publishing is a form and a button whose save still runs every gate.
+
+**The AI-visibility guidance is field observation, not documented behaviour.**
+No engine publishes how it picks what to quote. That section carries a date and
+a warning, and it is the shakiest ground here. Measure it on your own analytics
+rather than taking it on faith.
 
 ## Licence
 

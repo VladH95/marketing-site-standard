@@ -46,8 +46,18 @@ jobs:
       - name: Build
         run: npm run build
 
-      # Reports known vulnerabilities in dependencies without failing the run.
-      # Advisory on purpose: a transitive high in a dev tool should not block a
-      # copy fix at 6pm. Read it, act on real ones.
-      - name: Dependency audit (advisory)
-        run: npm audit --omit=dev || true
+      # Proves the gates REJECT. The build above only proves they accept, and a
+      # check that quietly stopped catching things would still be green.
+      - name: Gate tests
+        run: npm run test:gates
+
+      # A gate, not a notice. `|| true` here would mean a repository with
+      # "standard" in its name shipping known high-severity advisories in
+      # production dependencies while its own CI stayed green — the exact
+      # contradiction this project exists to avoid.
+      #
+      # Scoped to production dependencies and to high/critical: a moderate
+      # advisory in a build-time dev tool is not reachable from the running
+      # site, and failing on it would train people to ignore the step.
+      - name: Dependency audit
+        run: npm audit --omit=dev --audit-level=high

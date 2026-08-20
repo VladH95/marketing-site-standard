@@ -59,6 +59,12 @@ if (!deps.next) {
 // advertised build cannot even start, and the error it produces points at a
 // scaffolded file rather than at the missing package.
 const REQUIRED_DEPS = ["gray-matter"];
+
+// The consent banner and layout primitives are styled with Tailwind utility
+// classes. Without Tailwind they still work and still gate correctly, they
+// just render unstyled — worth saying out loud rather than letting someone
+// discover it as a "broken" banner.
+const hasTailwind = Boolean(deps.tailwindcss || deps["@tailwindcss/postcss"]);
 const missingDeps = REQUIRED_DEPS.filter((d) => !deps[d]);
 const EDITOR_DEPS = ["@keystatic/core", "@keystatic/next"];
 
@@ -73,6 +79,8 @@ const FILES = [
   ["scripts/check-content.mjs", "scripts/check-content.mjs"],
   ["scripts/check-links.mjs", "scripts/check-links.mjs"],
   ["scripts/gen-image-dimensions.mjs", "scripts/gen-image-dimensions.mjs"],
+  ["scripts/test-gates.mjs", "scripts/test-gates.mjs"],
+  ["scripts/doctor.mjs", "scripts/doctor.mjs"],
   ["scripts/install-hooks.mjs", "scripts/install-hooks.mjs"],
   ["githooks/pre-commit", ".githooks/pre-commit"],
   ["workflows/ci.yml", ".github/workflows/ci.yml"],
@@ -194,6 +202,14 @@ if (deferred.length) {
       deferred.map((l) => `    · ${l}`).join("\n") +
       `\n\n  Turning any of these on later means re-running this installer —\n` +
       `  the flag alone does nothing without the files it depends on.`
+  );
+}
+
+if (!hasTailwind) {
+  console.log(
+    `\n  Note: no Tailwind detected. The shipped components use utility classes,\n` +
+      `  so the consent banner and layout primitives will render unstyled until\n` +
+      `  you either add Tailwind or restyle them. Nothing else is affected.`
   );
 }
 
