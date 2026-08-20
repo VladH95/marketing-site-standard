@@ -16,11 +16,19 @@ description: >-
 
 # Marketing site build standard
 
-A marketing site is finished when a non-technical owner can add a page or an article,
-push it, and be certain the site did not break and the SEO did not regress. Everything
-here exists to make that true. The person running this standard usually does not read
-code, so correctness cannot rest on anyone remembering a rule — it has to be enforced
-by a script that fails loudly.
+A marketing site is finished when whoever owns it can publish a page and be certain
+the site did not break and the SEO did not regress. Everything here exists to make
+that true.
+
+Be precise about who "whoever owns it" is, because it changes what you have to build.
+Out of the box this standard produces a site an **editor comfortable with git** can
+run: they still touch YAML frontmatter, commit, and push. Guardrails, not absence of
+technical work. A genuinely non-technical owner needs the git-backed editor switched
+on as well (`references/client-editing.md`) — then publishing is a form and a button,
+and their save still runs every gate below.
+
+Either way the person publishing does not read code, so correctness cannot rest on
+anyone remembering a rule. It has to be enforced by a script that fails loudly.
 
 Two rules hold across every project:
 

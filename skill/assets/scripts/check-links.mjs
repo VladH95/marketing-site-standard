@@ -177,7 +177,10 @@ function collectFrom(file, text) {
   // Both quote styles matter — Prettier normalises JSX to double quotes, but
   // object literals in .ts data files are commonly single-quoted, and matching
   // one style means silently skipping half the codebase.
-  for (const m of text.matchAll(/(?:href|src)["']?\s*[:=]\s*(["'])(\/[^"']*)\1/g)) {
+  // Case-insensitive so prop and variable names carry too: `privacyHref =
+  // "/privacy-policy"` is a real link that a case-sensitive match walks past,
+  // which is exactly how a dead link reached this project's own example.
+  for (const m of text.matchAll(/(?:href|src)["']?\s*[:=]\s*(["'])(\/[^"']*)\1/gi)) {
     links.push({ href: m[2], source: file });
   }
 }

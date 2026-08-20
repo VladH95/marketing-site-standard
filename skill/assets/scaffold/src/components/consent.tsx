@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import siteConfig from "../../site.config.mjs";
 
 const KEY: string = siteConfig.analytics?.consentKey ?? "cookie-consent";
@@ -13,25 +13,49 @@ export type Consent = "accepted" | "declined";
  * that tracks a visitor loads before they say yes. Which tracker runs is the
  * client's choice; whether it waits for consent is not.
  *
- * The choice is stored in localStorage and broadcast as an event, so the
- * analytics loader can start immediately on accept without a page reload.
- * Declining or ignoring the banner loads nothing at all — no script, no
- * cookie, no request.
+ * The stored choice is modelled as an external store rather than as state
+ * synced by an effect. It genuinely is one — it lives in localStorage, outside
+ * React, and changes from another component. useSyncExternalStore is the
+ * React 19 way to read that, and it avoids the setState-inside-useEffect
+ * pattern that both lints against and causes a cascading re-render.
  */
 
-export function readConsent(): Consent | null {
+function subscribe(onChange: () => void) {
+  window.addEventListener(EVENT, onChange);
+  // Another tab deciding should update this one too.
+  window.addEventListener("storage", onChange);
+  return () => {
+    window.removeEventListener(EVENT, onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
+
+function getSnapshot(): Consent | null {
   try {
     const v = localStorage.getItem(KEY);
     return v === "accepted" || v === "declined" ? v : null;
   } catch {
-    return null; // storage disabled — treat as no consent
+    return null; // storage blocked — treat as no consent
   }
 }
 
-export function onConsent(fn: (c: Consent) => void): () => void {
-  const handler = (e: Event) => fn((e as CustomEvent<Consent>).detail);
-  window.addEventListener(EVENT, handler);
-  return () => window.removeEventListener(EVENT, handler);
+/** Nothing is known during SSR, and "no consent" is the safe assumption. */
+function getServerSnapshot(): Consent | null {
+  return null;
+}
+
+/** Read the visitor's choice. `null` means they have not decided. */
+export function useConsent(): Consent | null {
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+}
+
+export function setConsent(choice: Consent) {
+  try {
+    localStorage.setItem(KEY, choice);
+  } catch {
+    /* ignore storage failures — the visitor simply gets asked again */
+  }
+  window.dispatchEvent(new Event(EVENT));
 }
 
 export function ConsentBanner({
@@ -42,25 +66,16 @@ export function ConsentBanner({
   children?: React.ReactNode;
   privacyHref?: string;
 }) {
-  const [open, setOpen] = useState(false);
+  const consent = useConsent();
+  if (consent !== null) return null;
 
-  useEffect(() => {
-    // localStorage is unreadable during render, so the banner's visibility can
-    // only be decided after mount.
-    if (!readConsent()) setOpen(true);
-  }, []);
-
-  function decide(choice: Consent) {
-    try {
-      localStorage.setItem(KEY, choice);
-    } catch {
-      /* ignore storage failures — the visitor simply gets asked again */
-    }
-    window.dispatchEvent(new CustomEvent<Consent>(EVENT, { detail: choice }));
-    setOpen(false);
-  }
-
-  if (!open) return null;
+  // Nothing configured to track means nothing to consent to. Showing the
+  // banner anyway asks permission for something that does not happen, and
+  // states it in writing — worse than not asking, because it is a claim about
+  // the site that is untrue. A project using consent for something else (an
+  // embedded map, a video) passes its own `children` and the banner shows.
+  const trackerConfigured = (siteConfig.analytics?.provider ?? "none") !== "none";
+  if (!trackerConfigured && !children) return null;
 
   return (
     <div
@@ -85,14 +100,14 @@ export function ConsentBanner({
       <div className="mt-4 flex gap-2.5">
         <button
           type="button"
-          onClick={() => decide("accepted")}
+          onClick={() => setConsent("accepted")}
           className="flex-1 rounded-full bg-black px-5 py-3 text-sm font-medium text-white"
         >
           Accept
         </button>
         <button
           type="button"
-          onClick={() => decide("declined")}
+          onClick={() => setConsent("declined")}
           className="flex-1 rounded-full border px-5 py-3 text-sm font-medium"
         >
           Decline

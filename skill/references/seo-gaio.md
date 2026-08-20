@@ -112,7 +112,15 @@ Order of work:
 
 ## AI answer engines
 
-Answer engines quote structure, not prose quality. The formats that get cited:
+⚠️ **This section is field observation, not documented behaviour.** No engine
+publishes how it selects what to quote, so everything below is inference from
+watching which pages get cited — ours and other people's — as of **August 2026**.
+It has been directionally stable for about a year, and it is the shakiest ground
+in this whole standard. Re-check it against your own analytics rather than
+treating it as settled; if your data disagrees, your data wins.
+
+With that said: in what we can observe, answer engines appear to favour
+extractable structure over prose quality. The formats that get cited:
 
 - **A direct answer in the first sentence under each H2.** Extraction takes the
   first sentence; a wind-up paragraph loses the citation to whoever answered faster.
@@ -120,9 +128,12 @@ Answer engines quote structure, not prose quality. The formats that get cited:
   hand-written FAQ section in the body emits nothing.
 - **A short "what this covers" list** in the intro.
 - **Key takeaways** — three to five declarative, specific lines. "Budget $30K–$100K
-  for a mid-market redesign" gets quoted; "UX is important" does not.
-- **List-format pieces with `ItemList`**, which in practice tend to be cited far
-  more often than narrative guides.
+  for a mid-market redesign" gets quoted; "UX is important" does not. Specificity
+  seems to matter more than placement.
+- **List-format pieces with `ItemList`**. In one agency's Search Console data over
+  28 days, list articles produced roughly two thirds of all AI-feature impressions
+  despite being a minority of the articles. One site, one period — suggestive, not
+  proof, and worth measuring on yours before weighting a content plan around it.
 
 The content gate enforces the ones that can be checked mechanically (FAQ count,
 takeaways on long-form). The rest is editorial and belongs in the playbook.
