@@ -41,6 +41,9 @@ const unreadable = [];
 function walk(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const fp = path.join(dir, entry.name);
+    // Skip symlinked directories: they can point outside the project and can
+    // form cycles, and neither is something an image scan should chase.
+    if (entry.isSymbolicLink()) continue;
     if (entry.isDirectory()) { walk(fp); continue; }
     const ext = path.extname(entry.name).toLowerCase();
     if (![".png", ".jpg", ".jpeg"].includes(ext)) continue;
@@ -60,7 +63,14 @@ function walk(dir) {
   }
 }
 
-walk(SCAN);
+// A site with no markdown-authored images is a normal site, not a broken one.
+// Without this the script exits on an unhandled readdir and prints a stack
+// trace, which reads like the gate itself is broken.
+if (fs.existsSync(SCAN)) {
+  walk(SCAN);
+} else {
+  console.log(`gen-image-dimensions: no ${path.relative(process.cwd(), SCAN)} — nothing to measure`);
+}
 
 if (unreadable.length) {
   console.error(
@@ -73,5 +83,9 @@ if (unreadable.length) {
   process.exit(1);
 }
 
+// The destination may not exist yet on a fresh scaffold — the map is written
+// into the content tree, and a project can legitimately have no content
+// directory before its first article.
+fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(map, null, 0) + "\n");
 console.log(`✓ image-dimensions.json — ${count} images`);

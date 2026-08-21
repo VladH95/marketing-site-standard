@@ -47,8 +47,27 @@ npm run dev   # http://localhost:3000/keystatic
 ```
 
 Local development reads and writes the working copy directly, so you can build
-the field model without touching GitHub. Production uses GitHub mode: the
-client signs in with GitHub and each save becomes a commit.
+the field model without touching GitHub. Production uses GitHub mode, and that
+needs one setup step nobody guesses:
+
+**Keystatic authenticates through a GitHub App**, which you create once per
+site. Keystatic's own docs walk it through; what matters here is what it leaves
+you with, because these are secrets and they belong in the handoff inventory:
+
+```
+KEYSTATIC_GITHUB_CLIENT_ID
+KEYSTATIC_GITHUB_CLIENT_SECRET
+KEYSTATIC_SECRET                 # any long random string
+NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG
+```
+
+Set all four in Vercel (and in `.env.local` to test locally). The app's callback
+URL must point at the production domain, so an app created against a preview URL
+signs people in on the preview and nowhere else — a confusing failure worth
+avoiding by doing this after the domain is live.
+
+Only the `NEXT_PUBLIC_` one is safe to expose; the client secret is a real
+secret and gets rotated at handoff like any other.
 
 The config gate checks that `editor.repo` is filled and that
 `keystatic.config.ts` exists, so an enabled flag with nothing behind it fails
@@ -59,10 +78,12 @@ the build instead of shipping a broken admin.
 `keystatic.config.ts` is the only documentation most clients will ever read,
 because it is the text next to the box they are typing in. Two rules:
 
-**Every field maps to frontmatter the gate knows.** A field the gate ignores is
-a field nobody validates. A gate rule with no field is an error the client
-cannot act on — they get a failed deploy and no way to fix it. Add them
-together, always.
+**Every field maps to frontmatter the gate knows, with the same limits.** A
+field the gate ignores is a field nobody validates. A gate rule with no field is
+an error the client cannot act on — they get a failed deploy and no way to fix
+it. And where the two disagree on a number, the editor happily saves work the
+build then rejects: the shipped config sets `min: 3` on FAQ and `3–5` on
+takeaways precisely because the content gate does. Change one, change both.
 
 **Descriptions are written for them, not for us.** "Shown in Google results,
 aim for 50–160 characters" is training. "Meta description" is not.

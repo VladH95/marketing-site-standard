@@ -101,8 +101,8 @@ be rare. Twice in a week means the gate is miscalibrated; fix the gate.
 
 ## CI and the setting that makes it real
 
-`.github/workflows/ci.yml` runs lint, typecheck, build, and an advisory
-`npm audit` on every pull request.
+`.github/workflows/ci.yml` runs lint, typecheck, build, the gate tests and a
+blocking `npm audit` on every pull request.
 
 **The workflow alone blocks nothing.** GitHub will happily merge a PR with a red
 check. Two repository settings turn it into an actual gate:
@@ -115,9 +115,17 @@ again after a repository transfer — **branch protection rules do not always
 survive a transfer between accounts**, which is a quiet way for a handed-over
 site to lose its safety net on day one.
 
-`npm audit` is advisory (`|| true`). A transitive high-severity advisory in a
-build-time dev dependency should not block a typo fix at 6pm. Read it, act on
-things that are actually reachable from the running site.
+`npm audit` **fails the run**, scoped as `--omit=dev --audit-level=high`. The
+scoping is the whole design: a moderate advisory in a build-time dev tool is not
+reachable from the running site, and failing on it would train people to ignore
+the step — but a high-severity advisory in a production dependency is shipped
+code, and a standard that reports those without stopping them is not a standard.
+
+Pin third-party actions by commit SHA rather than tag. A tag is mutable: whoever
+controls the action can move `v4` onto different code and every consumer picks
+it up on the next run. Give each workflow an explicit `permissions:` block too,
+or it inherits the repository default, which is often write access to
+everything.
 
 ## Installing the gates
 

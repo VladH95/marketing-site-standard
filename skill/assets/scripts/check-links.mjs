@@ -190,6 +190,10 @@ function walkFiles(dir, exts, onFile) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const fp = path.join(dir, e.name);
     if (e.isDirectory()) {
+      // Do not follow symlinked directories. A link in the content tree can
+      // point anywhere on the machine, and a scanner that follows one both
+      // walks out of the project and can loop forever on a cycle.
+      if (e.isSymbolicLink()) continue;
       if (e.name === "node_modules" || e.name === ".next") continue;
       walkFiles(fp, exts, onFile);
     } else if (exts.some((x) => e.name.endsWith(x))) {

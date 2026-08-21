@@ -43,6 +43,7 @@ still be using in two years.
 | Bing Webmaster Tools | | | Add owner | Yes |
 | IndexNow key | in `site.config.mjs` + `public/<key>.txt` | | Regenerate | Yes |
 | Form / CRM endpoint | | | Re-provision on client account | Depends |
+| Editor GitHub App (if `editor.enabled`) | `KEYSTATIC_*` env vars | | Recreate on the client's account | Yes |
 | Booking link (Calendly etc.) | | | Client's own account | Yes |
 | Font licences | | | **Check the licence terms** | Often not transferable |
 | Stock imagery licences | | | Check terms | Often not transferable |

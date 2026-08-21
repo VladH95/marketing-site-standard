@@ -121,9 +121,23 @@ Rules:
 
 ## Dependencies
 
-`npm ci` in CI so the lockfile is what gets built. `npm audit --omit=dev`
-advisory in the workflow — read it, act on anything reachable from the running
-site, do not block a copy fix on a transitive advisory in a build tool.
+`npm ci` in CI so the lockfile is what gets built, and `npm audit --omit=dev
+--audit-level=high` **as a gate** — a high-severity advisory in a production
+dependency is shipped code. Dev-only and moderate findings do not block, because
+they are not reachable from the running site and failing on them teaches people
+to skip the step.
+
+Watch the framework's own release notes: most production advisories here arrive
+transitively through Next rather than through anything you chose, so the fix is
+usually a Next patch release rather than a direct dependency bump.
+
+Pin third-party GitHub Actions by commit SHA, not tag — a tag can be moved onto
+different code by whoever owns the action. Set an explicit `permissions:` block
+on every workflow; without one it inherits the repository default.
+
+File scanners here do not follow symlinked directories. A link inside the
+content tree can point anywhere on the machine, and following one both leaves
+the project and can loop on a cycle.
 
 Keep the dependency list short. Every package is build-time code execution on
 your machine and on Vercel's. The reference stack runs on roughly six runtime

@@ -65,6 +65,7 @@ const TRACKED = [
   ["src/app/robots.ts", "assets/scaffold/src/app/robots.ts"],
   ["src/app/rss.xml/route.ts", "assets/scaffold/src/app/rss.xml/route.ts"],
   ["src/app/llms.txt/route.ts", "assets/scaffold/src/app/llms.txt/route.ts"],
+  ["src/components/markdown.tsx", "assets/scaffold/src/components/markdown.tsx"],
   ["src/components/consent.tsx", "assets/scaffold/src/components/consent.tsx"],
   ["src/components/analytics.tsx", "assets/scaffold/src/components/analytics.tsx"],
 ];
