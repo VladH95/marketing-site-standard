@@ -84,6 +84,7 @@ const FILES = [
   ["scripts/install-hooks.mjs", "scripts/install-hooks.mjs"],
   ["githooks/pre-commit", ".githooks/pre-commit"],
   ["workflows/ci.yml", ".github/workflows/ci.yml"],
+  ["dependabot.yml", ".github/dependabot.yml"],
 
   // architecture — content loader and the generated SEO surfaces
   ["scaffold/src/lib/content.ts", "src/lib/content.ts"],
