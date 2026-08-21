@@ -139,6 +139,20 @@ File scanners here do not follow symlinked directories. A link inside the
 content tree can point anywhere on the machine, and following one both leaves
 the project and can loop on a cycle.
 
+**Automate the noticing, not the merging.** Dependabot opens a pull request
+when a dependency moves; CI then runs the whole gate chain against it, so a
+break is visible before anyone reads the diff. `assets/dependabot.yml` groups
+routine updates into one monthly PR — ungrouped is how a repository acquires a
+permanent wall of open PRs that everyone learns to scroll past — and lets
+majors arrive alone, because a major is a decision rather than maintenance.
+
+Enable **Dependabot security updates** per repository as well (Settings →
+Advanced Security). Those ignore the schedule and open a PR as soon as an
+advisory affects an installed version, which is the case that actually matters.
+
+Do not auto-merge on a client's live site. The gates make review cheap; they do
+not make it unnecessary, and a patch release can still change behaviour.
+
 Keep the dependency list short. Every package is build-time code execution on
 your machine and on Vercel's. The reference stack runs on roughly six runtime
 dependencies; a marketing site that has grown to forty has acquired a problem

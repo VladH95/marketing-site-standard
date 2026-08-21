@@ -1,0 +1,42 @@
+# Dependency updates, opened as pull requests.
+#
+# The reason this is safe to switch on: CI runs the whole gate chain on every
+# pull request, so an update that breaks the build says so before anyone looks
+# at it. Without those gates an automated bump is a liability; with them it is
+# a proposal that has already been checked.
+#
+# It never merges. That is deliberate — a patch release can still change
+# behaviour, and on a client's live site the review is the point. What the
+# automation removes is the part humans are bad at: noticing that an update
+# exists at all.
+#
+# Security updates are separate and are enabled per repository in
+# Settings → Advanced Security → Dependabot security updates. Those open a PR
+# as soon as an advisory affects an installed version, regardless of the
+# schedule below.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: monthly
+    # Grouped so a quiet month is one pull request rather than nine. Ungrouped
+    # updates are how a repository ends up with a permanent wall of open PRs
+    # that everyone learns to scroll past.
+    groups:
+      production:
+        dependency-type: production
+        update-types: [minor, patch]
+      development:
+        dependency-type: development
+        update-types: [minor, patch]
+    # Majors arrive on their own, because they are a decision rather than
+    # maintenance and deserve to be read.
+    open-pull-requests-limit: 5
+
+  # Keeps the pinned action SHAs current. Pinning by commit is what makes a
+  # mutable tag safe; this is what stops the pin going stale.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
