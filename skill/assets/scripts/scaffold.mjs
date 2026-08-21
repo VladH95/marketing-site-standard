@@ -58,7 +58,7 @@ if (!deps.next) {
 // The content loader and both gates parse frontmatter. Without this the
 // advertised build cannot even start, and the error it produces points at a
 // scaffolded file rather than at the missing package.
-const REQUIRED_DEPS = ["gray-matter"];
+const REQUIRED_DEPS = ["gray-matter", "react-markdown", "remark-gfm"];
 
 // The consent banner and layout primitives are styled with Tailwind utility
 // classes. Without Tailwind they still work and still gate correctly, they
@@ -97,6 +97,7 @@ const FILES = [
 
   // consent gate + analytics loader (the rule "nothing loads before consent"
   // is fixed; which tracker runs comes from the config)
+  ["scaffold/src/components/markdown.tsx", "src/components/markdown.tsx"],
   ["scaffold/src/components/consent.tsx", "src/components/consent.tsx"],
   ["scaffold/src/components/analytics.tsx", "src/components/analytics.tsx"],
 

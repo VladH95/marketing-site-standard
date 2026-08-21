@@ -84,8 +84,23 @@ if (analytics.provider && analytics.provider !== "none") {
   // nowhere else — it works locally, then silently records nothing.
   const allow = config.security?.cspAllow ?? {};
   const allHosts = [...(allow.script ?? []), ...(allow.connect ?? [])].join(" ");
-  const needle = analytics.provider === "ga4" ? "googletagmanager" : "plausible";
-  if (!allHosts.includes(needle)) {
+  // Match the host the component will actually request, not the product name.
+  // Self-hosted and custom-domain Plausible are common and their hostnames
+  // contain no "plausible" at all, so a substring check would reject a
+  // perfectly correct config.
+  let needle;
+  if (analytics.provider === "ga4") {
+    needle = "googletagmanager";
+  } else {
+    const host = analytics.plausibleHost ?? "https://plausible.io";
+    try {
+      needle = new URL(host).hostname.replace(/^www\./, "");
+    } catch {
+      errors.push(`analytics.plausibleHost is not a valid URL (${host})`);
+      needle = null;
+    }
+  }
+  if (needle && !allHosts.includes(needle)) {
     errors.push(
       `analytics.provider is "${analytics.provider}" but no ${needle} host is in security.cspAllow — the CSP would block it in production`
     );

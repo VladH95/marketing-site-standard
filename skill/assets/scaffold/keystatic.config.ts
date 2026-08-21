@@ -31,7 +31,13 @@ export default config({
       ? { kind: "local" }
       : {
           kind: "github",
-          repo: { owner: "OWNER", name: "REPO" },
+          // From site.config.mjs, which the config gate validates. Hardcoding
+          // it here would mean the gate checks a field nothing reads, and the
+          // editor silently commits to the wrong repository — or to none.
+          repo: {
+            owner: siteConfig.editor?.repo?.owner ?? "",
+            name: siteConfig.editor?.repo?.name ?? "",
+          },
         },
 
   ui: { brand: { name: siteConfig.site.name } },
@@ -77,22 +83,34 @@ export default config({
           description: "While ticked, this stays hidden from the site.",
           defaultValue: true,
         }),
-        takeaways: fields.array(fields.text({ label: "Takeaway" }), {
-          label: "Key takeaways",
-          description:
-            "Three to five short, specific lines. These are what AI assistants quote.",
-          itemLabel: (props) => props.value || "Takeaway",
-        }),
+        // The lengths here mirror the content gate exactly. Where they drift,
+        // the editor lets someone save work the build then rejects — and they
+        // get a failed deploy instead of a red field, with no way to act on it.
+        takeaways: fields.array(
+          fields.text({ label: "Takeaway", validation: { isRequired: true } }),
+          {
+            label: "Key takeaways",
+            description:
+              "Three to five short, specific lines. These are what AI assistants quote.",
+            itemLabel: (props) => props.value || "Takeaway",
+            validation: { length: { min: 3, max: 5 } },
+          }
+        ),
         faq: fields.array(
           fields.object({
-            question: fields.text({ label: "Question" }),
-            answer: fields.text({ label: "Answer", multiline: true }),
+            question: fields.text({ label: "Question", validation: { isRequired: true } }),
+            answer: fields.text({
+              label: "Answer",
+              multiline: true,
+              validation: { isRequired: true },
+            }),
           }),
           {
             label: "FAQ",
             description:
               "At least three. These power the question-and-answer block Google and AI assistants quote.",
             itemLabel: (props) => props.fields.question.value || "Question",
+            validation: { length: { min: 3 } },
           }
         ),
         content: fields.markdoc({ label: "Body", extension: "md" }),

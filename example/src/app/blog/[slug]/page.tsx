@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getDoc, getSlugs } from "@/lib/content";
 import { pageMetadata } from "@/lib/metadata";
 import { JsonLd, articleJsonLd, faqJsonLd } from "@/lib/jsonld";
+import { Markdown } from "@/components/markdown";
 
 export const dynamicParams = false;
 
@@ -61,7 +62,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           </ul>
         </>
       ) : null}
-      <div style={{ whiteSpace: "pre-wrap" }}>{doc.body}</div>
+      <Markdown>{doc.body}</Markdown>
       {faq.length ? (
         <>
           <h2>FAQ</h2>
