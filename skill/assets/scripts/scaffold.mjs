@@ -75,6 +75,7 @@ const FILES = [
   ["site.config.d.mts", "site.config.d.mts"],
 
   // gates
+  ["scripts/check-coherence.mjs", "scripts/check-coherence.mjs"],
   ["scripts/check-config.mjs", "scripts/check-config.mjs"],
   ["scripts/check-content.mjs", "scripts/check-content.mjs"],
   ["scripts/check-links.mjs", "scripts/check-links.mjs"],

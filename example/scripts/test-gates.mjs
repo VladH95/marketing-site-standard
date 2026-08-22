@@ -143,6 +143,36 @@ check(
   "not found in /public"
 );
 
+// ── coherence ───────────────────────────────────────────────────────────────
+check(
+  "coherence: a README command that does not exist fails",
+  "scripts/check-coherence.mjs",
+  (d) => {
+    const p = path.join(d, "README.md");
+    fs.writeFileSync(p, (fs.existsSync(p) ? fs.readFileSync(p, "utf8") : "") + "\n\nRun `npm run deploy:everything` to publish.\n");
+  },
+  "not in package.json"
+);
+
+check(
+  "coherence: a config key the type declaration omits fails",
+  "scripts/check-coherence.mjs",
+  (d) => edit(d, "site.config.mjs", (s) => s.replace("const config = {", 'const config = {\n  experimentalThing: { on: true },')),
+  "does not declare it"
+);
+
+check(
+  "coherence: a package.json script pointing at a missing file fails",
+  "scripts/check-coherence.mjs",
+  (d) => {
+    const p = path.join(d, "package.json");
+    const pkg = JSON.parse(fs.readFileSync(p, "utf8"));
+    pkg.scripts["ghost"] = "node scripts/not-here.mjs";
+    fs.writeFileSync(p, JSON.stringify(pkg, null, 2));
+  },
+  "which does not exist"
+);
+
 // ── links ───────────────────────────────────────────────────────────────────
 check(
   "links: a link to a slug that does not exist fails",

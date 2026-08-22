@@ -145,6 +145,40 @@ something breaks you know whether you broke it.
 If TypeScript complains about importing `site.config.mjs`, add `"**/*.mjs"` to
 `include` in `tsconfig.json`.
 
+## The part no gate can do
+
+Every check here is build-time and text-level. That leaves one entire class
+untouched, and it is not a small one: **whether the page is actually any good
+to look at.**
+
+This is not hypothetical. An article body in this standard's own example
+rendered as a wall of unformatted plain text for several days. The page
+returned 200. The text was present. Metadata, structured data and every link
+resolved. All five gates passed, twice, under review — because "the content is
+there" and "the content is readable" are different questions, and only one of
+them can be asked in a script.
+
+So the standard requires a look. Before any launch and before any handoff, open
+the site and use it:
+
+- [ ] **An article, top to bottom.** Are headings headings, lists lists,
+      quotes quotes? Do images appear, at sane sizes, without the page jumping
+      as they load?
+- [ ] **The home page and one listing.** Is the order right? Do the cards show
+      what they should?
+- [ ] **On a phone.** Not a narrow desktop window — a phone, or at minimum
+      device emulation. This is where most marketing traffic is.
+- [ ] **The forms.** Submit one. Watch it arrive. Then break it (offline in
+      devtools) and check the failure is visible and offers a fallback.
+- [ ] **The console.** No errors, no CSP violations. A blocked script fails
+      silently in production and nowhere else.
+- [ ] **A share preview.** Paste the URL into a chat and look at the card.
+- [ ] **The 404 page.** Someone will find it.
+
+Ten minutes, and it catches the category that eight scripts cannot. If you
+find yourself skipping it because the build is green, remember that the build
+was green in the example too.
+
 ## When a gate is wrong
 
 A gate that fires on correct work is worse than no gate, because it trains
