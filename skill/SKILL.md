@@ -82,8 +82,12 @@ Then, in order:
 4. **Now build pages from the design.** The content model, routing helpers, sitemap,
    RSS, `llms.txt` and structured data already work — pages consume them. Extract shared
    primitives on the second use, not the fifth.
-5. **Verify live.** After the first deploy check the real URL: 200 responses, correct
-   canonical, `sitemap.xml` lists what you expect, headers present. Curl it; do not assume.
+5. **Verify live, then look at it.** After the first deploy, curl the real URL for
+   200s, the correct canonical, a sane `sitemap.xml` and the headers — then **open
+   it in a browser and read a page**. The gates cannot tell you whether the page is
+   readable, only whether its parts exist; this standard's own example shipped
+   unformatted article bodies past five green gates. The checklist is in
+   `references/quality-gates.md`.
 
 The order matters. File-based content from the first commit, even on a five-page site —
 retrofitting a content model onto hardcoded JSX is the most expensive mistake available
