@@ -46,6 +46,7 @@ if (!fs.existsSync(path.join(SKILL, "SKILL.md"))) {
 
 /** [file in the project, its source inside the skill's assets] */
 const TRACKED = [
+  ["scripts/check-coherence.mjs", "assets/scripts/check-coherence.mjs"],
   ["scripts/check-config.mjs", "assets/scripts/check-config.mjs"],
   ["scripts/check-content.mjs", "assets/scripts/check-content.mjs"],
   ["scripts/check-links.mjs", "assets/scripts/check-links.mjs"],

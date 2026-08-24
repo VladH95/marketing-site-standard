@@ -4,6 +4,7 @@
 # bypassed gate protects nothing.
 #
 # What this catches before a commit exists at all:
+#   - a project that disagrees with itself (docs vs scripts vs config)
 #   - a config still holding template placeholders
 #   - lint errors
 #   - type errors
@@ -27,6 +28,7 @@ run() {
   fi
 }
 
+run check:coherence
 run check:config
 run lint
 run typecheck

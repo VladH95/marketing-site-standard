@@ -5,6 +5,8 @@
     "The order inside `build` is load-bearing:",
     "1. check-config  \u2014 everything downstream trusts site.config.mjs, so a placeholder",
     "                   domain there makes every canonical, the sitemap and the CSP",
+    "0. check-coherence \u2014 does the project agree with itself? Runs first because",
+    "                   every gate after it trusts the machine it is checking.",
     "                   confidently wrong while every other check still passes.",
     "2. gen-image-dimensions \u2014 the app imports the map it writes.",
     "3. check-content \u2014 cheap, and catches the most common authoring mistakes.",
@@ -24,7 +26,7 @@
   ],
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/check-config.mjs && node scripts/gen-image-dimensions.mjs && node scripts/check-content.mjs && node scripts/check-links.mjs && next build",
+    "build": "node scripts/check-coherence.mjs && node scripts/check-config.mjs && node scripts/gen-image-dimensions.mjs && node scripts/check-content.mjs && node scripts/check-links.mjs && next build",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
@@ -35,7 +37,8 @@
     "indexnow": "node scripts/indexnow.mjs",
     "prepare": "node scripts/install-hooks.mjs",
     "test:gates": "node scripts/test-gates.mjs",
-    "doctor": "node scripts/doctor.mjs"
+    "doctor": "node scripts/doctor.mjs",
+    "check:coherence": "node scripts/check-coherence.mjs"
   },
   "_dependencies_note": "The gate scripts need gray-matter. The scaffold installer checks for it and prints the install command if it is missing."
 }
