@@ -17,6 +17,10 @@
 version: 2
 updates:
   - package-ecosystem: npm
+    # The directory containing package.json. "/" is right for a normal
+    # single-project repo; change it if the app lives in a subdirectory,
+    # because Dependabot aborts on a missing manifest and the npm side then
+    # never runs at all.
     directory: "/"
     schedule:
       interval: monthly
