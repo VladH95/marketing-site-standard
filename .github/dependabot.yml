@@ -17,7 +17,11 @@
 version: 2
 updates:
   - package-ecosystem: npm
-    directory: "/"
+    # The npm project lives in example/, not at the repo root. Dependabot needs
+    # the directory that actually contains package.json — pointed at "/" it
+    # aborts with "/package.json not found" and the whole npm side silently
+    # never runs.
+    directory: "/example"
     schedule:
       interval: monthly
     # Grouped so a quiet month is one pull request rather than nine. Ungrouped
