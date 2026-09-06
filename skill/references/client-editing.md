@@ -108,6 +108,29 @@ Keystatic — whoever can push can edit.
   freelancer you met last week.
 - **Approval workflows:** not expressible. See below.
 
+## The branch picker
+
+In GitHub mode the editor shows a branch selector, and it lists **every** branch
+in the repository — including `dependabot/…` branches from automated dependency
+updates and any working branches a developer has open. To a content editor this
+is unexplained engineering noise in the middle of their writing tool, and the
+first reaction is reasonably "what am I looking at, and did I break something".
+
+There is no setting to hide it. So handle it with a sentence during the
+walkthrough rather than leaving them to work it out:
+
+> The dropdown at the top left picks which version of the site you are editing.
+> Stay on `main` — that is the live site. Anything else in that list belongs to
+> the developers and is safe to ignore.
+
+Two things worth doing on top of that:
+
+- Mention it **before** they see it. Discovering it alone reads as a fault;
+  hearing about it first reads as normal.
+- Keep the branch list short by merging or closing dependency PRs rather than
+  letting them pile up. That noise is visible to the client, which is a reason
+  to stay on top of it that engineering alone would not give you.
+
 ## What it cannot do
 
 Say these out loud before the client discovers them:
