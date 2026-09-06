@@ -223,6 +223,24 @@ if (missingDeps.length) {
   );
 }
 
+// Two of the copied files cause something outside this project to start
+// acting on the repository. Installing those quietly is how someone opens
+// GitHub a day later to branches and pull requests nobody told them about —
+// which is exactly what happened the first time this shipped.
+if (created.includes(".github/dependabot.yml")) {
+  console.log(
+    `\n  Heads up — .github/dependabot.yml was installed.\n\n` +
+      `  Once this is pushed, GitHub starts opening pull requests on its own:\n` +
+      `  grouped dependency updates monthly, and security fixes as soon as an\n` +
+      `  advisory lands. They appear as \`dependabot/…\` branches. Nothing is\n` +
+      `  merged automatically — CI checks each one and a human decides.\n\n` +
+      `  Those branches show up anywhere the repository lists branches,\n` +
+      `  including the content editor's branch picker. Say so to whoever edits\n` +
+      `  content, or they will reasonably ask what they are looking at.\n\n` +
+      `  Not wanted? Delete the file. Nothing else depends on it.`
+  );
+}
+
 console.log(`
 Next, in order:
 
